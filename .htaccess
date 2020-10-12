@@ -4,59 +4,42 @@ php_flag display_errors Off
 # Disable directory browsing
 Options All -Indexes
 
-# Prevent Htaccess access
-<Files ~ "^.*\.([Hh][Tt][Aa])">
-    Order Deny,Allow
-    Deny from all
-    Satisfy all
-</Files>
+# Disables the server signature
+ServerSignature Off
 
-# Prevent access to debug log
-<Files debug.log>
-    Order allow,deny
-    Deny from all
-</Files>
+# Set default charset
+AddDefaultCharset UTF-8
 
-# Prevent access to core files
-<FilesMatch "^.*(error_log|wp-config\.php|php.ini|\.[hH][tT][aApP].*)$">
+# Prevent access to important files
+<FilesMatch "^.*(readme.html|debug.log|error_log|wp-config\.php|php.ini|\.[hH][tT][aApP].*)$">
     Order Deny,Allow
     Deny from all
 </FilesMatch>
 
-# Disable login access from all except
+# Disable login access from all except your IP
 <FilesMatch "wp-login.php">
     Order Deny,Allow
     Deny from all
-    Allow from 89.142.159.106
+    Allow from xxx.xxx.xxx.xxx
 </FilesMatch>
 
-# Disable author pages
+# Prevent page resources hotlinking
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    RewriteCond %{REQUEST_URI}  ^/$
-    RewriteCond %{QUERY_STRING} ^/?author=([0-9]*) [NC]
-    RewriteRule ^(.*)$ http://%{HTTP_HOST}/? [L,R=301,NC]
+    RewriteEngine on
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-site-here.com [NC]
+    RewriteRule \.(js|css|)$ – [NC,F,L]
 </IfModule>
 
-# Prevent image hotlinking
-RewriteEngine on
-    RewriteCond %{HTTP_REFERER} !^$
-    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?wpbeginner.com [NC]
-    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
-    RewriteRule \.(jpg|jpeg|png|gif|webp)$ – [NC,F,L]
+# Force encrypted connection
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
 
-# Block WordPress xmlrpc.php requests
-<Files "xmlrpc.php">
-    Order Deny,Allow
-    Deny from all
-</Files>
 
-# Block readme file from being accessed
-<Files "readme.html">
-    Order Deny,Allow
-    Deny from all
-</Files>
+
 
 # Blocks some XSS attacks
 <IfModule mod_rewrite.c>
@@ -78,146 +61,95 @@ RewriteEngine on
 </IfModule>
 
 # Restricts access to PHP files from plugin and theme directories
-RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file/to/exclude\.php
-RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory/to/exclude/
+#RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file-to-exclude\.php
+#RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory-to-exclude/
 RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
-RewriteCond %{REQUEST_URI} !^/wp-content/themes/file/to/exclude\.php
-RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory/to/exclude/
+#RewriteCond %{REQUEST_URI} !^/wp-content/themes/file-to-exclude\.php
+#RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory-to-exclude/
 RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
 
-#Block bad bots
-RewriteEngine On
-RewriteCond %{HTTP_USER_AGENT} ^BlackWidow [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Bot\ mailto:craftbot@yahoo.com [OR]
-RewriteCond %{HTTP_USER_AGENT} ^ChinaClaw [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Custo [OR]
-RewriteCond %{HTTP_USER_AGENT} ^DISCo [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Download\ Demon [OR]
-RewriteCond %{HTTP_USER_AGENT} ^eCatch [OR]
-RewriteCond %{HTTP_USER_AGENT} ^EirGrabber [OR]
-RewriteCond %{HTTP_USER_AGENT} ^EmailSiphon [OR]
-RewriteCond %{HTTP_USER_AGENT} ^EmailWolf [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Express\ WebPictures [OR]
-RewriteCond %{HTTP_USER_AGENT} ^ExtractorPro [OR]
-RewriteCond %{HTTP_USER_AGENT} ^EyeNetIE [OR]
-RewriteCond %{HTTP_USER_AGENT} ^FlashGet [OR]
-RewriteCond %{HTTP_USER_AGENT} ^GetRight [OR]
-RewriteCond %{HTTP_USER_AGENT} ^GetWeb! [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Go!Zilla [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Go-Ahead-Got-It [OR]
-RewriteCond %{HTTP_USER_AGENT} ^GrabNet [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Grafula [OR]
-RewriteCond %{HTTP_USER_AGENT} ^HMView [OR]
-RewriteCond %{HTTP_USER_AGENT} HTTrack [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^Image\ Stripper [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Image\ Sucker [OR]
-RewriteCond %{HTTP_USER_AGENT} Indy\ Library [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^InterGET [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Internet\ Ninja [OR]
-RewriteCond %{HTTP_USER_AGENT} ^JetCar [OR]
-RewriteCond %{HTTP_USER_AGENT} ^JOC\ Web\ Spider [OR]
-RewriteCond %{HTTP_USER_AGENT} ^larbin [OR]
-RewriteCond %{HTTP_USER_AGENT} ^LeechFTP [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Mass\ Downloader [OR]
-RewriteCond %{HTTP_USER_AGENT} ^MIDown\ tool [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Mister\ PiX [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Navroad [OR]
-RewriteCond %{HTTP_USER_AGENT} ^NearSite [OR]
-RewriteCond %{HTTP_USER_AGENT} ^NetAnts [OR]
-RewriteCond %{HTTP_USER_AGENT} ^NetSpider [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Net\ Vampire [OR]
-RewriteCond %{HTTP_USER_AGENT} ^NetZIP [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Octopus [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Offline\ Explorer [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Offline\ Navigator [OR]
-RewriteCond %{HTTP_USER_AGENT} ^PageGrabber [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Papa\ Foto [OR]
-RewriteCond %{HTTP_USER_AGENT} ^pavuk [OR]
-RewriteCond %{HTTP_USER_AGENT} ^pcBrowser [OR]
-RewriteCond %{HTTP_USER_AGENT} ^RealDownload [OR]
-RewriteCond %{HTTP_USER_AGENT} ^ReGet [OR]
-RewriteCond %{HTTP_USER_AGENT} ^SiteSnagger [OR]
-RewriteCond %{HTTP_USER_AGENT} ^SmartDownload [OR]
-RewriteCond %{HTTP_USER_AGENT} ^SuperBot [OR]
-RewriteCond %{HTTP_USER_AGENT} ^SuperHTTP [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Surfbot [OR]
-RewriteCond %{HTTP_USER_AGENT} ^tAkeOut [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Teleport\ Pro [OR]
-RewriteCond %{HTTP_USER_AGENT} ^VoidEYE [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Web\ Image\ Collector [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Web\ Sucker [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebAuto [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebCopier [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebFetch [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebGo\ IS [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebLeacher [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebReaper [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebSauger [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Website\ eXtractor [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Website\ Quester [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebStripper [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebWhacker [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WebZIP [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Wget [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Widow [OR]
-RewriteCond %{HTTP_USER_AGENT} ^WWWOFFLE [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Xaldon\ WebSpider [OR]
-RewriteCond %{HTTP_USER_AGENT} ^Zeus
-RewriteRule ^.* - [F,L]
-
-
-# X-Frame-Options
+# Security and performance headers
 <IfModule mod_headers.c>
+    # X-Frame-Options
 	Header set X-Frame-Options "SAMEORIGIN"
-</IfModule>
 
-# X-XSS-Protection
-<IfModule mod_headers.c>
-	Header set X-XSS-Protection "1; mode=block"
-</IfModule>
+    # X-XSS-Protection
+    Header set X-XSS-Protection "1; mode=block"
 
-# X-Content-Type-Options
-<IfModule mod_headers.c>
+    # X-Content-Type-Options
 	Header set X-Content-Type-Options "nosniff"
-</IfModule>
 
-# Strict-Transport-Security
-<IfModule mod_headers.c>
+    # Strict-Transport-Security
 	Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
-</IfModule>
 
-# Content-Security-Policy
-<IfModule mod_headers.c>
+    # Content-Security-Policy
 	Header set Content-Security-Policy "default-src https:; font-src https: data:; img-src https: data:; script-src https:; style-src https:;"
-</IfModule>
 
-# Hide X-Powered-By header
-<IfModule mod_headers.c>
+    # Hide X-Powered-By header
     Header unset X-Powered-By
+
+    # The 'Referrer Policy' header controls what information is passed on to the next site whenever a link is clicked on your site.
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+
+    # Prevents hotlinking of Adobe resources
+    Header set X-Permitted-Cross-Domain-Policies "none"
+
+    # Disables the ETag Header
+    Header unset ETag
+
+    # Set site features
+    Header set Feature-Policy "camera 'none'; fullscreen 'self'; geolocation *; microphone 'none'"
+
+    # The Expect CT header policy instructs web browsers to either report or enforce Certificate Transparency requirements. This can stop miss-issued SSL certificates and can be set to either report mode or enforce mode.
+    Header set Expect-CT: "enforce, max-age=31536000"
 </IfModule>
 
-# Prevents hotlinking of Adobe resources
-<IfModule mod_headers.c>
-    Header set X-Permitted-Cross-Domain-Policies "none"
-<IfModule mod_headers.c>
+# Block spambots (Updated 12.10.2020)
+RewriteCond %{HTTP:User-Agent} (?:Alexibot|Art-Online|asterias|BackDoorbot|Black.Hole|
+BlackWidow|BlowFish|botALot|BuiltbotTough|Bullseye|BunnySlippers|Cegbfeieh|Cheesebot|
+CherryPicker|ChinaClaw|CopyRightCheck|cosmos|Crescent|Custo|DISCo|DittoSpyder|DownloadsDemon|
+eCatch|EirGrabber|EmailCollector|EmailSiphon|EmailWolf|EroCrawler|ExpresssWebPictures|ExtractorPro|
+EyeNetIE|FlashGet|Foobot|FrontPage|GetRight|GetWeb!|Go-Ahead-Got-It|Go!Zilla|GrabNet|Grafula|
+Harvest|hloader|HMView|httplib|HTTrack|humanlinks|ImagesStripper|ImagesSucker|IndysLibrary|
+InfonaviRobot|InterGET|InternetsNinja|Jennybot|JetCar|JOCsWebsSpider|Kenjin.Spider|Keyword.Density|
+larbin|LeechFTP|Lexibot|libWeb/clsHTTP|LinkextractorPro|LinkScan/8.1a.Unix|LinkWalker|lwp-trivial|
+MasssDownloader|Mata.Hari|Microsoft.URL|MIDownstool|MIIxpc|Mister.PiX|MistersPiX|moget|
+Mozilla/3.Mozilla/2.01|Mozilla.*NEWT|Navroad|NearSite|NetAnts|NetMechanic|NetSpider|NetsVampire|
+NetZIP|NICErsPRO|NPbot|Octopus|Offline.Explorer|OfflinesExplorer|OfflinesNavigator|Openfind|
+Pagerabber|PapasFoto|pavuk|pcBrowser|ProgramsSharewares1|ProPowerbot/2.14|ProWebWalker|ProWebWalker|
+psbot/0.1|QueryN.Metasearch|ReGet|RepoMonkey|RMA|SiteSnagger|SlySearch|SmartDownload|Spankbot|spanner|
+Superbot|SuperHTTP|Surfbot|suzuran|Szukacz/1.4|tAkeOut|Teleport|TeleportsPro|Telesoft|The.Intraformant|
+TheNomad|TightTwatbot|Titan|toCrawl/UrlDispatcher|toCrawl/UrlDispatcher|True_Robot|turingos|
+Turnitinbot/1.5|URLy.Warning|VCI|VoidEYE|WebAuto|WebBandit|WebCopier|WebEMailExtrac.*|WebEnhancer|
+WebFetch|WebGosIS|Web.Image.Collector|WebsImagesCollector|WebLeacher|WebmasterWorldForumbot|
+WebReaper|WebSauger|WebsiteseXtractor|Website.Quester|WebsitesQuester|Webster.Pro|WebStripper|
+WebsSucker|WebWhacker|WebZip|Wget|Widow|[Ww]eb[Bb]andit|WWW-Collector-E|WWWOFFLE|
+XaldonsWebSpider|Xenu's|Zeus) [NC]
+RewriteRule .? - [F]
 
-# The 'Referrer Policy' header controls what information is passed on to the next site whenever a link is clicked on your site.
-<IfModule mod_headers.c>
-    Header set Referrer-Policy "no-referrer-when-downgrade"
-<IfModule mod_headers.c>
+# Add these options only if not required by your wordpress site
 
-# Set site features
-<IfModule mod_headers.c>
-    Header set Feature-Policy "camera 'none'; fullscreen 'self'; geolocation *; microphone 'none'"
-<IfModule mod_headers.c>
+# Disable author pages
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{REQUEST_URI}  ^/$
+    RewriteCond %{QUERY_STRING} ^/?author=([0-9]*) [NC]
+    RewriteRule ^(.*)$ http://%{HTTP_HOST}/? [L,R=301,NC]
+</IfModule>
 
-# The Expect CT header policy instructs web browsers to either report or enforce Certificate Transparency requirements. This can stop miss-issued SSL certificates and can be set to either report mode or enforce mode.
-<IfModule mod_headers.c>
-    Header set Expect-CT: "enforce, max-age=31536000"
-<IfModule mod_headers.c>
+# Block WordPress xmlrpc.php requests
+<Files "xmlrpc.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
 
-# The 'Content Security Policy' controls what host URLs (domain names) are allowed to interact with your site.
-<IfModule mod_headers.c>
-    Header set Content-Security-Policy "default-src * data:; script-src https: 'unsafe-inline' 'unsafe-eval'; style-src https: 'unsafe-inline'"
-<IfModule mod_headers.c>
+# Prevent image hotlinking
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-domain-here.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|webp)$ – [NC,F,L]
+</IfModule>
+
 
