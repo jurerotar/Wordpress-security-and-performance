@@ -136,6 +136,9 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
     # Set site features
     Header set Feature-Policy "camera 'none'; fullscreen 'self'; geolocation *; microphone 'none'"
 
+    # Set permision policy header
+    Header set Permissions-Policy geolocation=(*), microphone=(), camera=(), fullscreen=(self)
+
     # The Expect CT header policy instructs web browsers to either report or enforce Certificate Transparency requirements. This can stop miss-issued SSL certificates and can be set to either report mode or enforce mode.
     Header set Expect-CT: "enforce, max-age=31536000"
 </IfModule>
