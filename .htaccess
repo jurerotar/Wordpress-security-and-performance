@@ -87,7 +87,7 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
     Header set Feature-Policy "camera 'none'; fullscreen 'self'; geolocation *; microphone 'none'"
 
     # Set permision policy header
-    Header set Permissions-Policy geolocation=(*), microphone=(), camera=(), fullscreen=(self)
+    Header set Permissions-Policy "geolocation=(*), microphone=(), camera=(), fullscreen=(self)"
 
 </IfModule>
 
