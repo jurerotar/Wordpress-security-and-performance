@@ -1,21 +1,24 @@
-# Wordpress enhanced security configuration
+# Apache configuration for secure and performant Wordpress sites
 
-Htaccess and wp-config.php rules for Wordpress site security and performance
+Apache configuration for secure and performant Wordpress sites. Some of these rules may not work with your Wordpress installation, so test settings before deploying.
 
-## htaccess
+## Apache and PHP settings
 
+### Hide PHP errors
 Hide any errors from showing. Errors can be used by attackers to gain information about our system.
 ```apache
 # Hide any errors from showing
 php_flag display_errors Off
 ```
 
+### Disable directory browsing
 Disable directory browsing
 ```apache
 # Disable directory browsing
 Options All -Indexes
 ```
 
+### Disable server signature
 Disables the server signature
 ```apache
 # Disables the server signature
@@ -27,8 +30,10 @@ Set default charset
 # Set default charset
 AddDefaultCharset UTF-8
 ```
+## Deny access
 
-Prevent access to important files
+### Deny access to important core files
+Prevent access to important files in the root folder. Attackers can use the information in these files to gain important information about your Wordpress installation and server settings.
 ```apache
 # Prevent access to important files
 <FilesMatch "^.*(readme.html|debug.log|error_log|wp-config\.php|php.ini|\.[hH][tT][aApP].*)$">
@@ -37,7 +42,8 @@ Prevent access to important files
 </FilesMatch>
 ```
 
-Disable login access from all except your IP
+### Deny access to login page
+Preventing unknown computers from accessing your login page, can easily prevent brute force attacks on your website.
 ```apache
 # Disable login access from all except your IP
 <FilesMatch "wp-login.php">
@@ -47,7 +53,7 @@ Disable login access from all except your IP
 </FilesMatch>
 ```
 
-Force encrypted connection
+### Force encrypted connection
 ```apache
 # Force encrypted connection
 <IfModule mod_rewrite.c>
@@ -57,7 +63,7 @@ Force encrypted connection
 </IfModule>
 ```
 
-Blocks some XSS attacks
+### Blocks some XSS attacks
 ```apache
 # Blocks some XSS attacks
 <IfModule mod_rewrite.c>
@@ -68,7 +74,8 @@ Blocks some XSS attacks
 </IfModule>
 ```
 
-Blocks all wp-includes folders and files
+### Hide `wp-includes` folder
+`wp-includes` folder contains core files for your Wordpress installation. These files are never needed by the users, so they should not have access to them.
 ```apache
 # Blocks all wp-includes folders and files
 <IfModule mod_rewrite.c>
@@ -93,7 +100,8 @@ RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
 RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
 ```
 
-Security and performance headers
+## Security and performance headers
+
 ```apache
 # Security and performance headers
 
@@ -105,13 +113,13 @@ Security and performance headers
     Header set X-XSS-Protection "1; mode=block"
 
     # X-Content-Type-Options
-	Header set X-Content-Type-Options "nosniff"
+    Header set X-Content-Type-Options "nosniff"
 
     # Strict-Transport-Security
-	Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
 
     # Content-Security-Policy
-	Header set Content-Security-Policy "default-src https:; font-src https: data:; img-src https: data:; script-src https:; style-src https:;"
+    Header set Content-Security-Policy "default-src https:; font-src https: data:; img-src https: data:; script-src https:; style-src https:;"
 
     # Hide X-Powered-By header
     Header unset X-Powered-By
@@ -132,6 +140,8 @@ Security and performance headers
     Header set Expect-CT: "enforce, max-age=31536000"
 </IfModule>
 ```
+
+## Block bad bots
 
 Block spambots (Updated 12.10.2020)
 ```apache
@@ -159,9 +169,11 @@ XaldonsWebSpider|Xenu's|Zeus) [NC]
 RewriteRule .? - [F]
 ```
 
-### Add these options only if not required by your wordpress site
+## Optional settings
+Add these options to your `.htaccess` only if the functionality they provide is not required by your Wordpress site.
 
-Disable author pages
+### Disable author pages
+Disabling author pages prevents bots and attackers from gaining registered user information (like usernames), which can be used in attacks.
 ```apache
 # Disable author pages
 <IfModule mod_rewrite.c>
@@ -173,6 +185,7 @@ Disable author pages
 </IfModule>
 ```
 
+### Block xmlrpc.php requests
 Block WordPress xmlrpc.php requests
 ```apache
 # Block WordPress xmlrpc.php requests
@@ -182,7 +195,7 @@ Block WordPress xmlrpc.php requests
 </Files>
 ```
 
-Prevent image hotlinking
+### Prevent image hotlinking
 ```apache
 # Prevent image hotlinking
 <IfModule mod_rewrite.c>
@@ -190,5 +203,16 @@ Prevent image hotlinking
     RewriteCond %{HTTP_REFERER} !^$
     RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-domain-here.com [NC]
     RewriteRule \.(jpg|jpeg|png|gif|webp)$ – [NC,F,L]
+</IfModule>
+```
+
+### Prevent resources hotlinking
+```apache
+# Prevent resources hotlinking
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-domain-here.com [NC]
+    RewriteRule \.(js|css)$ – [NC,F,L]
 </IfModule>
 ```

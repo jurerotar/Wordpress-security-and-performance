@@ -23,23 +23,12 @@ AddDefaultCharset UTF-8
     Allow from xxx.xxx.xxx.xxx
 </FilesMatch>
 
-# Prevent page resources hotlinking
-<IfModule mod_rewrite.c>
-    RewriteEngine on
-    RewriteCond %{HTTP_REFERER} !^$
-    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-site-here.com [NC]
-    RewriteRule \.(js|css|)$ – [NC,F,L]
-</IfModule>
-
 # Force encrypted connection
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
-
-
-
 
 # Blocks some XSS attacks
 <IfModule mod_rewrite.c>
@@ -150,6 +139,14 @@ RewriteRule .? - [F]
     RewriteCond %{HTTP_REFERER} !^$
     RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-domain-here.com [NC]
     RewriteRule \.(jpg|jpeg|png|gif|webp)$ – [NC,F,L]
+</IfModule>
+
+# Prevent resources hotlinking
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-site-here.com [NC]
+    RewriteRule \.(js|css|)$ – [NC,F,L]
 </IfModule>
 
 
