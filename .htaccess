@@ -62,9 +62,6 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
     # X-Frame-Options
 	Header set X-Frame-Options "SAMEORIGIN"
 
-    # X-XSS-Protection
-    Header set X-XSS-Protection "1; mode=block"
-
     # X-Content-Type-Options
 	Header set X-Content-Type-Options "nosniff"
 
@@ -92,8 +89,6 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
     # Set permision policy header
     Header set Permissions-Policy geolocation=(*), microphone=(), camera=(), fullscreen=(self)
 
-    # The Expect CT header policy instructs web browsers to either report or enforce Certificate Transparency requirements. This can stop miss-issued SSL certificates and can be set to either report mode or enforce mode.
-    Header set Expect-CT: "enforce, max-age=31536000"
 </IfModule>
 
 # Block spambots (Updated 12.10.2020)
