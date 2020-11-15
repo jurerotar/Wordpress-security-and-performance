@@ -23,39 +23,34 @@ AddDefaultCharset UTF-8
     Allow from xxx.xxx.xxx.xxx
 </FilesMatch>
 
-# Force encrypted connection
 <IfModule mod_rewrite.c>
+    # Force encrypted connection
     RewriteEngine On
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
 
-# Blocks some XSS attacks
-<IfModule mod_rewrite.c>
+    # Blocks some XSS attacks
     RewriteCond %{QUERY_STRING} (\|%3E) [NC,OR]
     RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
     RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
     RewriteRule .* index.php [F,L]
-</IfModule>
 
-# Blocks all wp-includes folders and files
-<IfModule mod_rewrite.c>
-    RewriteEngine On
+    # Blocks all wp-includes folders and files
     RewriteBase /
     RewriteRule ^wp-admin/includes/ - [F,L]
     RewriteRule !^wp-includes/ - [S=3]
     RewriteRule ^wp-includes/[^/]+\.php$ - [F,L]
     RewriteRule ^wp-includes/js/tinymce/langs/.+\.php - [F,L]
     RewriteRule ^wp-includes/theme-compat/ - [F,L]
-</IfModule>
 
-# Restricts access to PHP files from plugin and theme directories
-#RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file-to-exclude\.php
-#RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory-to-exclude/
-RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
-#RewriteCond %{REQUEST_URI} !^/wp-content/themes/file-to-exclude\.php
-#RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory-to-exclude/
-RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
+    # Restricts access to PHP files from plugin and theme directories
+    #RewriteCond %{REQUEST_URI} !^/wp-content/plugins/file-to-exclude\.php
+    #RewriteCond %{REQUEST_URI} !^/wp-content/plugins/directory-to-exclude/
+    #RewriteRule wp-content/plugins/(.*\.php)$ - [R=404,L]
+    #RewriteCond %{REQUEST_URI} !^/wp-content/themes/file-to-exclude\.php
+    #RewriteCond %{REQUEST_URI} !^/wp-content/themes/directory-to-exclude/
+    #RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
+</IfModule>
 
 # Security and performance headers
 <IfModule mod_headers.c>
@@ -70,9 +65,6 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
 
     # Content-Security-Policy
     Header set Content-Security-Policy "default-src * data:; script-src https: 'unsafe-inline' 'unsafe-eval'; style-src https: 'unsafe-inline'"
-
-    # Hide X-Powered-By header
-    Header unset X-Powered-By
 
     # The 'Referrer Policy' header controls what information is passed on to the next site whenever a link is clicked on your site.
     Header set Referrer-Policy "no-referrer-when-downgrade"
@@ -92,35 +84,37 @@ RewriteRule wp-content/themes/(.*\.php)$ - [R=404,L]
 </IfModule>
 
 # Block spambots (Updated 12.10.2020)
-RewriteEngine On
-RewriteBase /
-RewriteCond %{HTTP_USER_AGENT} ^(aesop_com_spiderman|alexibot|backweb|bandit|batchftp|bigfoot) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(black.?hole|blackwidow|blowfish|botalot|buddy|builtbottough|bullseye) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(cheesebot|cherrypicker|chinaclaw|collector|copier|copyrightcheck) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(cosmos|crescent|curl|custo|da|diibot|disco|dittospyder|dragonfly) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(drip|easydl|ebingbong|ecatch|eirgrabber|emailcollector|emailsiphon) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(emailwolf|erocrawler|exabot|eyenetie|filehound|flashget|flunky) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(frontpage|getright|getweb|go.?zilla|go-ahead-got-it|gotit|grabnet) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(grafula|harvest|hloader|hmview|httplib|httrack|humanlinks|ilsebot) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(infonavirobot|infotekies|intelliseek|interget|iria|jennybot|jetcar) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(joc|justview|jyxobot|kenjin|keyword|larbin|leechftp|lexibot|lftp|libweb) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(likse|linkscan|linkwalker|lnspiderguy|lwp|magnet|mag-net|markwatch) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(mata.?hari|memo|microsoft.?url|midown.?tool|miixpc|mirror|missigua) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(mister.?pix|moget|mozilla.?newt|nameprotect|navroad|backdoorbot|nearsite) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(net.?vampire|netants|netcraft|netmechanic|netspider|nextgensearchbot) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(attach|nicerspro|nimblecrawler|npbot|octopus|offline.?explorer) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(offline.?navigator|openfind|outfoxbot|pagegrabber|papa|pavuk) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(pcbrowser|php.?version.?tracker|pockey|propowerbot|prowebwalker) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(psbot|pump|queryn|recorder|realdownload|reaper|reget|true_robot) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(repomonkey|rma|internetseer|sitesnagger|siphon|slysearch|smartdownload) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(snake|snapbot|snoopy|sogou|spacebison|spankbot|spanner|sqworm|superbot) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(superhttp|surfbot|asterias|suzuran|szukacz|takeout|teleport) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(telesoft|the.?intraformant|thenomad|tighttwatbot|titan|urldispatcher) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(turingos|turnitinbot|urly.?warning|vacuum|vci|voideye|whacker) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^(libwww-perl|widow|wisenutbot|wwwoffle|xaldon|xenu|zeus|zyborg|anonymouse) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^web(zip|emaile|enhancer|fetch|go.?is|auto|bandit|clip|copier|master|reaper|sauger|site.?quester|whack) [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} ^.*(craftbot|download|extract|stripper|sucker|ninja|clshttp|webspider|leacher|collector|grabber|webpictures).*$ [NC]
-RewriteRule . - [F,L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{HTTP_USER_AGENT} ^(aesop_com_spiderman|alexibot|backweb|bandit|batchftp|bigfoot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(black.?hole|blackwidow|blowfish|botalot|buddy|builtbottough|bullseye) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(cheesebot|cherrypicker|chinaclaw|collector|copier|copyrightcheck) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(cosmos|crescent|curl|custo|da|diibot|disco|dittospyder|dragonfly) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(drip|easydl|ebingbong|ecatch|eirgrabber|emailcollector|emailsiphon) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(emailwolf|erocrawler|exabot|eyenetie|filehound|flashget|flunky) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(frontpage|getright|getweb|go.?zilla|go-ahead-got-it|gotit|grabnet) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(grafula|harvest|hloader|hmview|httplib|httrack|humanlinks|ilsebot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(infonavirobot|infotekies|intelliseek|interget|iria|jennybot|jetcar) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(joc|justview|jyxobot|kenjin|keyword|larbin|leechftp|lexibot|lftp|libweb) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(likse|linkscan|linkwalker|lnspiderguy|lwp|magnet|mag-net|markwatch) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(mata.?hari|memo|microsoft.?url|midown.?tool|miixpc|mirror|missigua) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(mister.?pix|moget|mozilla.?newt|nameprotect|navroad|backdoorbot|nearsite) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(net.?vampire|netants|netcraft|netmechanic|netspider|nextgensearchbot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(attach|nicerspro|nimblecrawler|npbot|octopus|offline.?explorer) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(offline.?navigator|openfind|outfoxbot|pagegrabber|papa|pavuk) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(pcbrowser|php.?version.?tracker|pockey|propowerbot|prowebwalker) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(psbot|pump|queryn|recorder|realdownload|reaper|reget|true_robot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(repomonkey|rma|internetseer|sitesnagger|siphon|slysearch|smartdownload) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(snake|snapbot|snoopy|sogou|spacebison|spankbot|spanner|sqworm|superbot) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(superhttp|surfbot|asterias|suzuran|szukacz|takeout|teleport) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(telesoft|the.?intraformant|thenomad|tighttwatbot|titan|urldispatcher) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(turingos|turnitinbot|urly.?warning|vacuum|vci|voideye|whacker) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(libwww-perl|widow|wisenutbot|wwwoffle|xaldon|xenu|zeus|zyborg|anonymouse) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^web(zip|emaile|enhancer|fetch|go.?is|auto|bandit|clip|copier|master|reaper|sauger|site.?quester|whack) [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^.*(craftbot|download|extract|stripper|sucker|ninja|clshttp|webspider|leacher|collector|grabber|webpictures).*$ [NC]
+    RewriteRule . - [F,L]
+</IfModule>
 
 # Add these options only if not required by your wordpress site
 
@@ -136,12 +130,12 @@ RewriteRule . - [F,L]
 # Block WordPress xmlrpc.php requests
 <Files "xmlrpc.php">
     Order Deny,Allow
-    Deny from all
+    Deny from All
 </Files>
 
 # Prevent image hotlinking
 <IfModule mod_rewrite.c>
-    RewriteEngine on
+    RewriteEngine On
     RewriteCond %{HTTP_REFERER} !^$
     RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-domain-here.com [NC]
     RewriteRule \.(jpg|jpeg|png|gif|webp)$ – [NC,F,L]
@@ -149,7 +143,7 @@ RewriteRule . - [F,L]
 
 # Prevent resources hotlinking
 <IfModule mod_rewrite.c>
-    RewriteEngine on
+    RewriteEngine On
     RewriteCond %{HTTP_REFERER} !^$
     RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?your-site-here.com [NC]
     RewriteRule \.(js|css|)$ – [NC,F,L]
