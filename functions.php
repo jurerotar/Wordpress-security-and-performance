@@ -8,7 +8,7 @@ header_remove('x-powered-by');
 /**
  * Remove X-Pingback header
  */
-add_filter('pings_open', function(): bool {
+add_filter('pings_open', function() {
     return false;
 });
 
@@ -16,7 +16,7 @@ add_filter('pings_open', function(): bool {
  * Disables xmlrpc.php
  * Disable only if your site does not require use of xmlrpc
  */
-add_filter('xmlrpc_enabled', function(): bool {
+add_filter('xmlrpc_enabled', function() {
     return false;
 });
 
@@ -33,6 +33,10 @@ add_filter('xmlrpc_enabled', function(): bool {
  * Use this option if your plugins require use of REST API, but would still like to disable core endpoints.
  */
 add_filter('rest_endpoints', function($endpoints) {
+    // If user is logged in, allow all endpoints
+    if(is_user_logged_in()) {
+        return $endpoints;
+    }
     foreach($endpoints as $route => $endpoint) {
         if(stripos($route, '/wp/') === 0) {
             unset($endpoints[ $route ]);
@@ -44,21 +48,21 @@ add_filter('rest_endpoints', function($endpoints) {
 /**
  * Disable plugins auto-update email notifications
  */
-add_filter( 'auto_plugin_update_send_email', function(): bool {
+add_filter( 'auto_plugin_update_send_email', function() {
     return false;
 });
 
 /**
  * Disable themes auto-update email notifications
  */
-add_filter( 'auto_theme_update_send_email', function(): bool {
+add_filter( 'auto_theme_update_send_email', function() {
     return false;
 });
 
 /**
  * Removes unnecesary information from <head> tag
  */
-add_action('init', function(): void {
+add_action('init', function() {
     // Remove post and comment feed link
     remove_action( 'wp_head', 'feed_links', 2 );
 
@@ -114,7 +118,7 @@ $feeds = [
 ];
 
 foreach($feeds as $feed) {
-    add_action($feed, function(): void {
+    add_action($feed, function() {
         wp_die('Feed has been disabled.');
     }, 1);
 }
@@ -122,8 +126,23 @@ foreach($feeds as $feed) {
 /**
  * Remove wp-embed.js file from loading
  */
-add_action( 'wp_footer', function(): void {
+add_action( 'wp_footer', function() {
     wp_deregister_script('wp-embed');
 });
+
+/**
+ * Enable WebP image type upload
+ */
+add_filter('mime_types', function($existing_mimes) {
+    $existing_mimes['webp'] = 'image/webp';
+    return $existing_mimes;
+});
+
+/**
+ * Display WebP thumbnail
+ */
+add_filter('file_is_displayable_image', function($result, $path) {
+    return ($result) ? $result : (empty(@getimagesize($path)) || !in_array(@getimagesize($path)[2], [IMAGETYPE_WEBP]));
+}, 10, 2);
 
 ?>
