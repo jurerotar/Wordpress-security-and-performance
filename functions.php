@@ -60,7 +60,7 @@ add_filter( 'auto_theme_update_send_email', function() {
 });
 
 /**
- * Removes unnecesary information from <head> tag
+ * Removes unnecessary information from <head> tag
  */
 add_action('init', function() {
     // Remove post and comment feed link
@@ -102,6 +102,16 @@ add_action('init', function() {
     // Remove Link header for shortlink
     remove_action('template_redirect', 'wp_shortlink_header', 11, 0 );
 
+    // If you're not using emojis, you can remove the additional JavaScript & CSS used for emoji support
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('wp_print_styles', 'print_emoji_styles');
+
+    // If your site and plugins don’t rely on deprecated jQuery functions, you can dequeue jquery-migrate
+    add_action('wp_default_scripts', function( $scripts ) {
+        if ( !is_admin() && isset( $scripts->registered['jquery'] ) ) {
+            $scripts->registered['jquery']->deps = array_diff( $scripts->registered['jquery']->deps, ['jquery-migrate'] );
+        }
+    });
 });
 
 /**
